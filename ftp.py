@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 import os
-import subprocess
-from getpass import getpass
 
-def proverka(date):
+def proverka(date): #нужна в случае, если ввод из терминала
 
     if len(date) != 3 and isinstance(date, list):
         return 0
@@ -27,33 +25,6 @@ def proverka(date):
     if a > month[b-1]: return 0
     return 1
 
-def generator(date1, date2): # date в формате [22, 5, 2000]
-    #file = open("data.txt", "w")
-    #for k in range(date1[2], date2[2]+1):
-    #    for j in range(date1[1], date2[1]+1):
-    #        for i in range(date1[0], date2[0]):
-    #            testdata = [i, j, k]
-    #            if proverka(testdata):
-    #                file.write(f"{i}-{j}-{k}.txt\n")
-    #file.close()
-    dates = list()
-    for i in range(date1[2], date2[2]+1):
-        for j in range(1, 13):
-            for k in range(1, 32):
-                if i == date1[2] and (j < date1[1] or j == date1[1] and k < date2[0]):
-                    continue
-                if i == date2[2] and (j > date2[1] or j == date2[1] and k > date2[0]):
-                    continue
-                testdata = [k, j, i]
-                if proverka(testdata):
-                    dates.append(f"{k}-{j}-{i}.txt")
-
-    return dates
-
-
-def example_generator():
-    return generator([30, 1, 1999], [25, 12, 2007])
-
 def ftp():
     print(" ______     _________   ______     ")
     print("/_____/\   /________/\ /_____/\    ")
@@ -64,47 +35,73 @@ def ftp():
     print("    \_\/         \__\/     \_\/    ")
     print("                                   ")
 
-
-    flag = 0
-    while flag != 1:
-        date1 = list(input("Введите дату начала архива (включительно) в формате [day month year]: ").split())
-        if proverka(date1) == 0: 
-            print("Вы где-то ошиблись, попробуйте ещё раз")
-        else:
-            flag = 1
-
-    flag = 0
-    while flag != 1:
-        date2 = list(input("Введите дату конца архива (включительно) в формате [day month year]: ").split())
-        if proverka(date2) == 0: 
-            print("Вы где-то ошиблись, попробуйте ещё раз")
-        else:
-            flag = 1
-
-    for i in range(3):
-        date1[i], date2[i] = int(date1[i]), int(date2[i])
+    date1 = [2019, 1, 1] 
+    date2 = [2023, 3, 13]
 
 
-    if (   date2[2] < date1[2]   ) or (   date2[2] == date1[2] and date2[1] < date1[1]   ) or (   date2[2] == date1[2] and date2[1] == date1[1] and date2[0] < date1[0]   ):
-        print("Неверный порядок дат")
-        exit()
+    #если даты нужно вводить из терминала, нужно раскомментировать блок ниже
 
-    dates = generator(date1, date2)
+    #flag = 0
+    #while flag != 1:
+    #    date1 = list(input("Введите дату начала архива (включительно) в формате [day month year]: ").split())
+    #    if proverka(date1) == 0: 
+    #        print("Вы где-то ошиблись, попробуйте ещё раз")
+    #    else:
+    #        flag = 1
+    #
+    #flag = 0
+    #while flag != 1:
+    #    date2 = list(input("Введите дату конца архива (включительно) в формате [day month year]: ").split())
+    #    if proverka(date2) == 0: 
+    #        print("Вы где-то ошиблись, попробуйте ещё раз")
+    #    else:
+    #        flag = 1
+    #
+    #for i in range(3):
+    #    date1[i], date2[i] = int(date1[i]), int(date2[i])
+    #
+    #
+    #if (   date2[2] < date1[2]   ) or (   date2[2] == date1[2] and date2[1] < date1[1]   ) or (   date2[2] == date1[2] and date2[1] == date1[1] and date2[0] < date1[0]   ):
+    #    print("Неверный порядок дат")
+    #    exit()
 
-    user = input("Введите имя пользователя ftp сервера: ")
-    password = getpass("Введите пароль: ")
-    ipadress = input("Введите ip адрес сервера или домен: ")
-    ftppath = input("Введите путь, по которому лежат файлы в папке пользователя(без / на конце): ")
-    ourpath = input("Введите полный путь, в который скопируются файлы (можно нажать enter для текущей папки): ")
-    if ourpath != "":
-        ourpath = " -P "+ourpath
-
-    #os.system("wget ftp://user:password@ftp.mydomain.com/path/file.ext -P /home/path")
-    for i in dates:
-        os.system(f"wget ftp://{user}:{password}@{ipadress}/{ftppath}/{i} {ourpath}")
-        #subprocess.run(f"wget ftp://{user}:{password}@{ipadress}/{ftppath}/{i}{ourpath}")
+    #конец блока
 
 
+
+
+    #a = os.popen("""lftp -e "find -l;bye" ftp://ftp.glonass-iac.ru""")  # эта строка не работает, если файлов много, как в случае с сервером глонасса
+
+    #lftp -e "find -l;bye" ftp://ftp.glonass-iac.ru &> files.txt # в случае, если строка выше не работает, копируем эту в терминал, она создает файл
+    #files.txt с выводом строки выше и заполняется со временем. Из терминала прогресса видно не будет, поэтому нужно проверять состояние строки с помощью 
+    #команды wc -l files.txt (она покажет, сколько строк в файле), команду эту нужно вставлять в другом терминале. Затем мы прерываем изначальную команду
+    #с помощью Ctrl+C (2 раза) и удаляем слово Прерывание (или Interrupt) в созданном файле в конце файла с помощью терминального текстового редактора 
+    # (Nano, например), так как терминальные редакторы могут открывать файлы с огромным количеством строк (в случае с глонасс их будет от 80 до 90 тысяч).
+    #После этого программа заработает. Это временный костыль, пока не придумал, как исправить это
+    a = open("files.txt")
+    list_of_files = list()
+    for line in a:
+        spisok = line.strip().split(" ")
+        spisok = [ i for i in spisok if i!=" " and i !=""] 
+        q = str(" ".join(spisok[5:]))
+        spisok = spisok[0:5]
+        spisok.append(q)
+        list_of_files.append(spisok)
+    list_of_files = list_of_files[1:]
+    a.close()
+    for i in range(len(list_of_files)):
+        date_of_cuerrent_file = list_of_files[i][3].split("-")
+        for j in range(3): date_of_cuerrent_file[j] = int(date_of_cuerrent_file[j])
+        if list_of_files[i][0][0] != "d":
+            if date_of_cuerrent_file[0] >= date1[0] and date_of_cuerrent_file[0] <= date2[0]:
+                if date_of_cuerrent_file[1] >= date1[1] and date_of_cuerrent_file[1] <= date2[1]:
+                    if date_of_cuerrent_file[2] >= date1[2] and date_of_cuerrent_file[2] <= date2[2]:
+                        ourpath = list_of_files[i][5]
+                        ftppath = "\""+ourpath[2:]+"\""
+                        ourpath = "\""+ourpath+"\""
+                        print(f"wget ftp://ftp.glonass-iac.ru/{ftppath}  -P {ourpath}")
+                        #os.system(f"wget ftp://ftp.glonass-iac.ru/{ftppath}  -P {ourpath}") # эта строка отправляет запрос на скачивание файла
+                        #пример запроса: wget ftp://ftp.glonass-iac.ru/ARCHIV_KOC/123 -P ./ARCHIV_KOC/123
 
 if __name__ == "__main__":
     ftp()
